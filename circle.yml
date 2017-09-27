@@ -8,6 +8,6 @@ dependencies:
 
 test:
   override:
-    - docker build -t sameersbn/mysql .
-    - docker run --name=mysql -d sameersbn/mysql; sleep 10
-    - docker run --volumes-from=mysql sameersbn/mysql mysqladmin status
+    - docker build -t rickrussell/mysql .
+    - docker run --name=mysql -d rickrussell/mysql; sleep 10
+    - docker run --volumes-from=mysql rickrussell/mysql mysqladmin status

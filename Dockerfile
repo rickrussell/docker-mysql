@@ -1,5 +1,5 @@
-FROM sameersbn/ubuntu:14.04.20170123
-MAINTAINER sameer@damagehead.com
+FROM debian:latest
+MAINTAINER sysadmin.rick@gmail.com
 
 ENV MYSQL_USER=mysql \
     MYSQL_DATA_DIR=/var/lib/mysql \
@@ -7,7 +7,7 @@ ENV MYSQL_USER=mysql \
     MYSQL_LOG_DIR=/var/log/mysql
 
 RUN apt-get update \
- && DEBIAN_FRONTEND=noninteractive apt-get install -y mysql-server \
+ && DEBIAN_FRONTEND=noninteractive apt-get install -y mariadb-server mariadb-server-core-10.1 \
  && rm -rf ${MYSQL_DATA_DIR} \
  && rm -rf /var/lib/apt/lists/*
 

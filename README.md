@@ -1,5 +1,3 @@
-[![Circle CI](https://circleci.com/gh/sameersbn/docker-mysql.svg?style=svg)](https://circleci.com/gh/sameersbn/docker-mysql) [![Docker Repository on Quay.io](https://quay.io/repository/sameersbn/mysql/status "Docker Repository on Quay.io")](https://quay.io/repository/sameersbn/mysql)
-
 # Table of Contents
 
 - [Introduction](#introduction)
@@ -23,8 +21,7 @@ Dockerfile to build a MySQL container image which can be linked to other contain
 If you find this image useful here's how you can help:
 
 - Send a Pull Request with your awesome new features and bug fixes
-- Help new users with [Issues](https://github.com/sameersbn/docker-mysql/issues) they may encounter
-- Support the development of this image with a [donation](http://www.damagehead.com/donate/)
+- Help new users with [Issues](https://github.com/rickrussell/docker-mysql/issues) they may encounter
 
 # Reporting Issues
 
@@ -32,42 +29,38 @@ Docker is a relatively new project and is active being developed and tested by a
 
 Given the nature of the development and release cycle it is very important that you have the latest version of docker installed because any issue that you encounter might have already been fixed with a newer docker release.
 
-For ubuntu users I suggest [installing docker](https://docs.docker.com/installation/ubuntulinux/) using docker's own package repository since the version of docker packaged in the ubuntu repositories are a little dated.
-
-Here is the shortform of the installation of an updated version of docker on ubuntu.
+Install latest version of docker for yourself:
 
 ```bash
-sudo apt-get purge docker.io
-curl -s https://get.docker.io/ubuntu/ | sudo sh
+curl -fsSL "https://download.docker.com/linux/debian/gpg" | sudo apt-key add -
+sudo add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/debian $(lsb_release -cs) stable"
 sudo apt-get update
-sudo apt-get install lxc-docker
+sudo apt-get -y install docker-ce
+sudo usermod -aG docker ${USER}
 ```
+> **NOTE**
+> You will need to logout and log back in before you're officially a member of the
+> docker group
 
-Fedora and RHEL/CentOS users should try disabling selinux with `setenforce 0` and check if resolves the issue. If it does than there is not much that I can help you with. You can either stick with selinux disabled (not recommended by redhat) or switch to using ubuntu.
+And install docker-compose for later use:
 
-If using the latest docker version and/or disabling selinux does not fix the issue then please file a issue request on the [issues](https://github.com/sameersbn/docker-mysql/issues) page.
-
-In your issue report please make sure you provide the following information:
-
-- The host ditribution and release version.
-- Output of the `docker version` command
-- Output of the `docker info` command
-- The `docker run` command you used to run the image (mask out the sensitive bits).
+```bash
+sudo curl -L https://github.com/docker/compose/releases/download/1.16.1/docker-compose-`uname -s`-`uname -m` -o /usr/local/bin/docker-compose
+sudo chmod +x /usr/local/bin/docker-compose
+```
 
 # Installation
 
-Automated builds of the image are available on [Dockerhub](https://hub.docker.com/r/sameersbn/mysql) and is the recommended method of installation.
-
-> **Note**: Builds are also available on [Quay.io](https://quay.io/repository/sameersbn/mysql)
+Automated builds of the image are available on [Dockerhub](https://hub.docker.com/r/rickrussell/mysql) and is the recommended method of installation.
 
 ```bash
-docker pull sameersbn/mysql:latest
+docker pull rickrussell/mysql:latest
 ```
 
 Alternately you can build the image yourself.
 
 ```bash
-docker build -t sameersbn/mysql github.com/sameersbn/docker-mysql
+docker build -t rickrussell/mysql github.com/rickrussell/docker-mysql
 ```
 
 # Quick Start
@@ -75,13 +68,13 @@ docker build -t sameersbn/mysql github.com/sameersbn/docker-mysql
 Run the mysql image
 
 ```bash
-docker run --name mysql -d sameersbn/mysql:latest
+docker run --name mysql -d rickrussell/mysql:latest
 ```
 
 You can access the mysql server as the root user using the following command:
 
 ```bash
-docker run -it --rm --volumes-from=mysql sameersbn/mysql:latest mysql -uroot
+docker run -it --rm --volumes-from=mysql rickrussell/mysql:latest mysql -uroot
 ```
 
 # Data Store
@@ -97,9 +90,9 @@ sudo chcon -Rt svirt_sandbox_file_t /opt/mysql/data
 
 The updated run command looks like this.
 
-```
+```bash
 docker run --name mysql -d \
-  -v /opt/mysql/data:/var/lib/mysql sameersbn/mysql:latest
+  -v /opt/mysql/data:/var/lib/mysql rickrussell/mysql:latest
 ```
 
 This will make sure that the data stored in the database is not lost when the image is stopped and started again.
@@ -113,7 +106,7 @@ This will make sure that the data stored in the database is not lost when the im
 > However if you were using this image before this feature was added, then it will not work as-is. You are required to create the `debian-sys-maint` user
 >
 >```bash
->docker run -it --rm --volumes-from=mysql sameersbn/mysql \
+>docker run -it --rm --volumes-from=mysql rickrussell/mysql \
 >  mysql -uroot -e "GRANT ALL PRIVILEGES on *.* TO 'debian-sys-maint'@'localhost' IDENTIFIED BY '' WITH GRANT OPTION;"
 >```
 
@@ -121,14 +114,14 @@ To create a new database specify the database name in the `DB_NAME` variable. Th
 
 ```bash
 docker run --name mysql -d \
-  -e 'DB_NAME=dbname' sameersbn/mysql:latest
+  -e 'DB_NAME=dbname' rickrussell/mysql:latest
 ```
 
 You may also specify a comma separated list of database names in the `DB_NAME` variable. The following command creates two new databases named *dbname1* and *dbname2*
 
 ```bash
 docker run --name mysql -d \
--e 'DB_NAME=dbname1,dbname2' sameersbn/mysql:latest
+-e 'DB_NAME=dbname1,dbname2' rickrussell/mysql:latest
 ```
 
 To create a new user you should specify the `DB_USER` and `DB_PASS` variables.
@@ -136,7 +129,7 @@ To create a new user you should specify the `DB_USER` and `DB_PASS` variables.
 ```bash
 docker run --name mysql -d \
   -e 'DB_USER=dbuser' -e 'DB_PASS=dbpass' -e 'DB_NAME=dbname' \
-  sameersbn/mysql:latest
+  rickrussell/mysql:latest
 ```
 
 The above command will create a user *dbuser* with the password *dbpass* and will also create a database named *dbname*. The *dbuser* user will have full/remote access to the database.
@@ -152,7 +145,7 @@ By default the new database will be created with the `utf8` character set and `u
 docker run --name mysql -d \
   -e 'DB_USER=dbuser' -e 'DB_PASS=dbpass' -e 'DB_NAME=dbname' \
   -e 'MYSQL_CHARSET=utf8mb4' -e 'MYSQL_COLLATION=utf8_bin' \
-  sameersbn/mysql:latest
+  rickrussell/mysql:latest
 ```
 
 # Creating remote user with privileged access
@@ -162,7 +155,7 @@ To create a remote user with privileged access, you need to specify the `DB_REMO
 ```bash
 docker run --name mysql -d \
   -e 'DB_REMOTE_ROOT_NAME=root' -e 'DB_REMOTE_ROOT_PASS=secretpassword' \
-  sameersbn/mysql:latest
+  rickrussell/mysql:latest
 ```
 
 Optionally you can specify the `DB_REMOTE_ROOT_HOST` variable to define the address space within which remote access should be permitted. This defaults to `172.17.0.1` and should suffice for most cases.
@@ -211,11 +204,11 @@ docker stop mysql
 - **Step 2**: Update the docker image.
 
 ```bash
-docker pull sameersbn/mysql:latest
+docker pull rickrussell/mysql:latest
 ```
 
 - **Step 3**: Start the image
 
 ```bash
-docker run --name mysql -d [OPTIONS] sameersbn/mysql:latest
+docker run --name mysql -d [OPTIONS] rickrussell/mysql:latest
 ```
